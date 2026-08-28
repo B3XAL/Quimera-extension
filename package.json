@@ -11,7 +11,7 @@
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
     "prettier": "^3.5.3",
     "sinon": "^22.1.0"
   },
