@@ -1,0 +1,25 @@
+{
+  "name": "quimera",
+  "version": "1.0.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/B3XAL/Quimera-extension.git"
+  },
+  "license": "GPL-3.0-only",
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "prettier": "^3.5.3",
+    "sinon": "^22.1.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "lint": "eslint . --config eslint.config.mjs",
+    "lint:fix": "eslint . --fix --config eslint.config.mjs",
+    "build": "npm run lint && node scripts/build.mjs",
+    "build:safari": "npm run lint && node scripts/build.mjs --safari-only"
+  }
+}

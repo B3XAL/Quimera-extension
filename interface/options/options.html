@@ -1,0 +1,299 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="options.js" type="module" defer></script>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../theme/switch.css" />
+  <title>Quimera Options</title>
+</head>
+
+<body>
+  <div class="container">
+    <fieldset>
+      <legend>Options</legend>
+      <div class="input-container">
+        <label for="advanced-cookie">Show Advanced Cookie Options</label>
+        <label class="switch">
+          <input type="checkbox" id="advanced-cookie" aria-describedby="advanced-cookie-hint" />
+          <span class="slider"></span>
+        </label>
+        <div class="hint" id="advanced-cookie-hint">
+          When Enabled, all the values of a cookie are visible in the
+          interface.<br />
+          When Disabled, only the name and the value of the cookie are visible
+          in the interface.
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="devtool-show">Enable Devtool panel</label>
+        <label class="switch">
+          <input type="checkbox" id="devtool-show" aria-describedby="devtool-show-hint" />
+          <span class="slider"></span>
+        </label>
+        <div class="hint" id="devtool-show-hint">
+          When Enabled, Quimera will be added to the DevTools tabs.
+          Devtools needs to be restarted to take effect when turning this
+          option off.
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="animations-enabled">Enable Animations</label>
+        <label class="switch">
+          <input type="checkbox" id="animations-enabled" aria-describedby="animations-enabled-hint" />
+          <span class="slider"></span>
+        </label>
+        <div class="hint" id="animations-enabled-hint">
+          When Enabled, Quimera will show transitions and other various
+          animations in the interface. This is for appearance only.
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="export-format">Export Format</label>
+        <select id="export-format" aria-describedby="export-format-hint">
+          <option value="json">JSON</option>
+          <option value="headerstring">Header String</option>
+          <option value="netscape">Netscape</option>
+          <option value="ask">Ask every time</option>
+        </select>
+        <div class="hint" id="export-format-hint">
+          Selects the behavior of the export button. When "Ask every time" is
+          selected, a menu asking you to chose the format will show up when
+          you press the export button.
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="extra-info">Show Extra Information</label>
+        <select id="extra-info" aria-describedby="v-hint">
+          <option value="nothing">Nothing</option>
+          <option value="value">Value</option>
+          <option value="domain">Domain</option>
+          <option value="path">Path</option>
+          <option value="expiration">Expiration</option>
+          <option value="samesite">Same Site</option>
+          <option value="hostonly">Host Only</option>
+          <option value="session">Session</option>
+          <option value="secure">Secure</option>
+          <option value="httponly">Http Only</option>
+        </select>
+        <div class="hint" id="extra-info-hint">
+          Selects one extra element to display next to the cookie name in the
+          interface. This can help you identify quickly which cookie you are
+          looking for.
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="theme">Theme</label>
+        <select id="theme" aria-describedby="theme-hint">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+        <div class="hint" id="theme-hint">
+          When selecting "Auto", Quimera will match your browser's theme
+          automatically.
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="button-bar-top">Place Button Bar on Top</label>
+        <label class="switch">
+          <input type="checkbox" id="button-bar-top" aria-describedby="button-bar-top-hint" />
+          <span class="slider"></span>
+        </label>
+        <div class="hint" id="button-bar-top-hint">
+          When enabled, the main button bar will be placed at the top of the
+          interface instead of the bottom.
+        </div>
+      </div>
+      
+    </fieldset>
+
+    <fieldset>
+      <legend>Quimera Bridge</legend>
+      <div class="input-container">
+        <label for="quimera-bridge-enabled">Enable Bridge to Quimera (Burp)</label>
+        <label class="switch">
+          <input type="checkbox" id="quimera-bridge-enabled" aria-describedby="quimera-bridge-enabled-hint" />
+          <span class="slider"></span>
+        </label>
+        <div class="hint" id="quimera-bridge-enabled-hint">
+          When enabled, every page snapshot is also sent to a Quimera Burp
+          extension running on this machine for deep analysis (CSP, known-SDK
+          signatures, tech fingerprinting, and more). Works with zero
+          configuration if Quimera is running on the default port. If
+          Quimera isn't running, this silently does nothing, the Vulns tab
+          keeps working with the extension's own local findings.
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="quimera-bridge-status">Connection status</label>
+        <span id="quimera-bridge-status">Checking…</span>
+        <button id="quimera-bridge-check" type="button">Check now</button>
+      </div>
+
+      <div class="input-container">
+        <label for="quimera-bridge-port">Bridge Port</label>
+        <input type="number" id="quimera-bridge-port" min="1" max="65535" />
+        <div class="hint">Must match the port configured in Quimera's Browser Bridge settings. Default: 8199.</div>
+      </div>
+
+      <div class="input-container">
+        <label for="quimera-bridge-token-enabled">Require Pairing Token</label>
+        <label class="switch">
+          <input type="checkbox" id="quimera-bridge-token-enabled" aria-describedby="quimera-bridge-token-hint" />
+          <span class="slider"></span>
+        </label>
+        <div class="hint" id="quimera-bridge-token-hint">
+          Required. Paste the pairing token generated by Quimera Burp.
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="quimera-bridge-token">Pairing Token</label>
+        <input type="text" id="quimera-bridge-token" autocomplete="off" placeholder="Paste the token shown in Quimera" />
+      </div>
+
+      <div class="input-container">
+        <label>Website access</label>
+        <div class="notice">
+          Approving this on every regular HTTP(S) page collects, locally on
+          this device only:
+          <ul>
+            <li>The page's URL/host.</li>
+            <li>Cookies for that site.</li>
+            <li>localStorage and sessionStorage for that site.</li>
+            <li>The authentication-shaped signals you enabled under
+              "Collectors" below (for example token-shaped window globals).</li>
+          </ul>
+          This data is processed on your device and is never sent anywhere
+          unless you separately enable "Enable Bridge to Quimera (Burp)"
+          above, in which case selected snapshots go only to the Quimera
+          Burp extension on <code>127.0.0.1</code> on this same machine.
+          Nothing is sent to the developer or any third party.
+        </div>
+        <button id="quimera-grant-all-hosts" type="button">
+          Allow access to all websites
+        </button>
+        <div class="hint" id="quimera-global-access-status">
+          Recommended: approve once to capture on every website without
+          repeated host prompts. Quimera Burp discards bridge snapshots that
+          are outside Burp Target Scope.
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="quimera-scope-hosts">Authorized hosts</label>
+        <textarea id="quimera-scope-hosts" rows="3" placeholder="example.com&#10;api.example.com"></textarea>
+        <div class="hint">
+          One host per line. Empty means capture is disabled. Saving requests
+          browser permission only for the listed hosts. Prefix a domain with
+          <code>*</code> (for example <code>*zara.com</code>) to include its
+          apex and all dot-separated subdomains.
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="quimera-burp-scope-sync">Synchronize Burp Target Scope</label>
+        <label class="switch">
+          <input type="checkbox" id="quimera-burp-scope-sync" />
+          <span class="slider"></span>
+        </label>
+        <div class="hint">
+          Burp supplies only hosts observed by Quimera that are currently in
+          Target Scope. With global website access, new hosts are authorized
+          automatically without additional prompts. Otherwise they remain
+          pending for per-host approval, limited to 50 new hosts per batch.
+          Burp path rules are converted to host-level browser access.
+        </div>
+        <button id="quimera-burp-scope-authorize" type="button">
+          Sync and authorize new hosts
+        </button>
+        <div class="hint" id="quimera-burp-scope-status">Synchronization disabled.</div>
+      </div>
+
+      <div class="input-container">
+        <label>Collectors</label>
+        <div class="checkbox-list">
+          <label><input type="checkbox" id="quimera-collector-localStorage" /> localStorage</label>
+          <label><input type="checkbox" id="quimera-collector-sessionStorage" /> sessionStorage</label>
+          <label><input type="checkbox" id="quimera-collector-cookies" /> Cookie flags (HttpOnly/Secure/SameSite)</label>
+          <label><input type="checkbox" id="quimera-collector-domSignals" /> Authentication-shaped window globals</label>
+          <label><input type="checkbox" id="quimera-collector-postMessage" disabled /> postMessage analysis (not collected)</label>
+          <label><input type="checkbox" id="quimera-collector-windowGlobals" /> Window globals</label>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>All Cookies</legend>
+      <div class="notice danger">
+        <svg class="icon">
+          <use href="../sprites/solid.svg#exclamation-triangle"></use>
+        </svg>
+        <strong>Be careful!</strong> Operations in this section will apply to ALL sites.
+         <br />
+        Do not share your cookies exported from here to anyone you do not
+        fully trust. Giving some your cookies this way will give them access
+        to every account you are currently logged in.
+      </div>
+      <div class="input-container">
+        Export All Cookies
+        <div class="button-group">
+          <button id="export-all-json">As JSON</button>
+          <button id="export-all-netscape">As Netscape</button>
+        </div>
+        <div class="hint">
+          Header string is not available for browser-wide export since it does
+          not contain information about which site it comes from.
+        </div>
+      </div>
+      <div class="input-container">
+        Delete All Cookies
+        <button class="danger" id="delete-all">Delete All</button>
+        <div class="hint danger">
+          This will delete all the cookies on all the site on this browser.
+          This action is irreversible. Be very careful.
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>About Quimera</legend>
+      <p>
+        Quimera inspects and manages browser-side authentication state during authorized web
+        security testing. Its optional, authenticated local bridge sends selected evidence to
+        Quimera Burp. Fully open source, forked from Cookie-Editor by Christophe Gagnier.
+      </p>
+      <p>
+        <a href="https://github.com/B3XAL" target="_blank">Find me on GitHub</a>. <br />
+        Quimera is published under
+        <a href="https://github.com/Moustachauve/cookie-editor/blob/master/LICENSE" target="_blank">the GPL-3.0
+          license</a>, same as the Cookie-Editor project it's forked from.
+      </p>
+      <p>
+        Data use is limited to the security-testing functionality described on this page: Quimera
+        does not sell user data, does not use it for advertising or credit decisions, does not build
+        profiles unrelated to that functionality, and no human at the developer reads it. Data is
+        processed on your device and, only if you enable the optional Burp bridge, sent to a Quimera
+        Burp extension on <code>127.0.0.1</code> on the same machine.
+      </p>
+      <p class="disclaimer">
+        This project is not an official Google project. It is not supported by
+        Google and Google specifically disclaims all warranties as to its
+        quality, merchantability, or fitness for a particular purpose.
+      </p>
+    </fieldset>
+  </div>
+</body>
+
+</html>
