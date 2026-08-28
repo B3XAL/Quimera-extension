@@ -9,7 +9,7 @@
   "license": "GPL-3.0-only",
   "devDependencies": {
     "eslint": "^9.0.0",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "prettier": "^3.5.3",
