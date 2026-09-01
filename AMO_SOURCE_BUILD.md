@@ -1,6 +1,6 @@
 # Mozilla Add-ons source build instructions
 
-This source package corresponds to Quimera for Firefox version 1.0.3.
+This source package corresponds to Quimera for Firefox version 1.0.4.
 
 ## Environment
 
@@ -24,7 +24,7 @@ npm run build
 The exact Firefox submission package is generated at:
 
 ```text
-dist/1.0.3/quimera-firefox-1.0.3.zip
+dist/1.0.4/quimera-firefox-1.0.4.zip
 ```
 
 The build does not minify, bundle, transpile, or obfuscate JavaScript. `scripts/build.mjs` copies

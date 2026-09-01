@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Quimera",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"author": "b3xal",
 	"description": "Inspect and manage browser-side authentication state during authorized web security testing.",
 	"offline_enabled": true,

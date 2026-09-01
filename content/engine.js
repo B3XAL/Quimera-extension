@@ -286,6 +286,27 @@
     );
   }
 
+  function jwtStorageFinding(value, apiName, path) {
+    return mk(
+      'JWT stored in ' + apiName + ': ' + path,
+      apiName === 'sessionStorage' ? 'LOW' : 'MEDIUM',
+      'CERTAIN',
+      'storage',
+      apiName + '.' + path + ' = ' + truncate(value),
+      'The browser confirmed that this Web Storage entry contains a JSON Web Token. ' +
+        'Web Storage has no HttpOnly-equivalent protection, so any script running on the origin, ' +
+        'including through XSS, can read and exfiltrate it. ' +
+        (apiName === 'localStorage'
+          ? 'localStorage persists across tabs and browser restarts.'
+          : 'sessionStorage is limited to this browsing context, reducing persistence but not script access.'),
+      {
+        key: 'jwt-storage:' + apiName + ':' + value,
+        location: apiName + '.' + path,
+        baseTitle: 'JWT stored in ' + apiName,
+      }
+    );
+  }
+
   function truncate(value) {
     if (typeof value !== 'string') return value;
     return value.length > MAX_VALUE_LEN
@@ -395,6 +416,7 @@
     if (depth > 8 || value === null || value === undefined) return;
     if (typeof value === 'string') {
       if (looksLikeJwt(value)) {
+        findings.push(jwtStorageFinding(value, apiName, path));
         findings.push(...analyzeJwt(value, apiName + '.' + path));
         return;
       }
@@ -437,6 +459,7 @@
       if (typeof value !== 'string' || !value) continue;
 
       if (looksLikeJwt(value)) {
+        findings.push(jwtStorageFinding(value, apiName, key));
         findings.push(...analyzeJwt(value, apiName + '.' + key));
         continue;
       }
@@ -469,7 +492,15 @@
         }
       }
     }
-    return findings;
+    const floor = apiName === 'sessionStorage' ? 'LOW' : 'MEDIUM';
+    const order = { HIGH: 0, MEDIUM: 1, LOW: 2, INFORMATION: 3 };
+    return findings.map(finding => ({
+      ...finding,
+      severity:
+        (order[finding.severity] ?? 9) < order[floor]
+          ? finding.severity
+          : floor,
+    }));
   }
 
   /** Rendered-DOM signals collected by content.js. Scoped deliberately narrow
