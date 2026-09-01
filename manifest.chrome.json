@@ -1,0 +1,66 @@
+{
+	"manifest_version": 3,
+	"name": "Quimera",
+	"version": "1.0.3",
+	"author": "b3xal",
+	"description": "Inspect and manage browser-side authentication state during authorized web security testing.",
+	"offline_enabled": true,
+	"minimum_chrome_version": "102",
+	"background": {
+		"service_worker": "quimera.js",
+		"type": "module"
+	},
+	"action": {
+		"default_icon": {
+			"16": "icons/quimera-16.png",
+			"19": "icons/quimera-19.png",
+			"32": "icons/quimera-32.png",
+			"48": "icons/quimera-48.png"
+		},
+		"default_title": "Quimera",
+		"default_popup": "interface/popup/cookie-list.html"
+	},
+	"side_panel": {
+		"default_path": "interface/sidepanel/cookie-list.html"
+	},
+	"devtools_page": "interface/devtools/devtool.html",
+	"options_ui": {
+		"page": "interface/options/options.html"
+	},
+	"permissions": [
+		"cookies",
+		"alarms",
+		"tabs",
+		"storage",
+		"scripting",
+		"sidePanel"
+	],
+	"host_permissions": [
+		"<all_urls>",
+		"http://127.0.0.1/*",
+		"http://localhost/*"
+	],
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"js": ["content/inject-mainworld.js"],
+			"run_at": "document_start",
+			"world": "MAIN",
+			"all_frames": true
+		},
+		{
+			"matches": ["<all_urls>"],
+			"js": ["content/engine.js", "content/content.js"],
+			"run_at": "document_idle",
+			"all_frames": false
+		}
+	],
+	"icons": {
+		"16": "icons/quimera-16.png",
+		"19": "icons/quimera-19.png",
+		"32": "icons/quimera-32.png",
+		"48": "icons/quimera-48.png",
+		"128": "icons/quimera-128.png"
+	},
+	"incognito": "split"
+}

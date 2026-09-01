@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Quimera seed page</title>
+</head>
+<body>
+  <h1>Quimera extension test page</h1>
+  <p>
+    Serve this over plain HTTP (e.g. <code>python3 -m http.server</code> from
+    the <code>test/</code> folder) and open it with the extension installed.
+    It seeds one example of every Phase-1 check so you can confirm the
+    Vulns tab (and, if the bridge is enabled, Quimera itself) reports all of
+    them.
+  </p>
+
+  <!-- Check 4/8: target=_blank without rel=noopener, form posting over http
+       with a password field. -->
+  <a href="https://example.com" target="_blank">Opens without noopener</a>
+  <form action="http://example.com/login" method="post">
+    <input type="text" name="username" />
+    <input type="password" name="password" />
+    <button type="submit">Log in over plain HTTP</button>
+  </form>
+
+  <!-- Check 7: secret in a hidden field and in an HTML comment. -->
+  <input type="hidden" name="csrf_secret" value="sup3r-h1dd3n-csrf-secret-value" />
+  <!-- TODO: remove before deploy, debug_auth_token=devtoken1234567890abcdef -->
+
+  <script>
+    // Check 2: a JWT and an opaque token in Web Storage.
+    localStorage.setItem(
+      'authToken',
+      'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyMTIzIiwicm9sZSI6ImFkbWluIiwiZXhwIjo5OTk5OTk5OTk5fQ.'
+    );
+    sessionStorage.setItem(
+      'apiKey',
+      'sk_live_51H8opaqueTestTokenNotARealKey000000000000'
+    );
+    // A second JWT with no exp claim, kept off the storage key name filter
+    // so it's found via the JWT-shape check instead of the key-name check.
+    localStorage.setItem(
+      'refresh',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwiZW1haWwiOiJ1c2VyQGV4YW1wbGUuY29tIn0.fakesigxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+    );
+    // Check 2c: token/refresh-token buried inside a JSON blob under a storage key whose own
+    // name ("0-client-app") and whose own raw value (it's JSON, not base64) both fail the flat
+    // checks above, angular-auth-oidc-client/oidc-client-ts/MSAL-style libraries store their
+    // whole token response this way. Only found via the recursive JSON-blob walk. The access
+    // token is deliberately duplicated at two paths (authnResult.access_token AND authzData,
+    // mirroring angular-auth-oidc-client's real layout) so this also exercises the dedupe pass:
+    // it should show up as ONE "found at 2 locations" finding, not two identical ones.
+    (function () {
+      const accessToken = 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyMTIzIn0.';
+      sessionStorage.setItem(
+        '0-client-app',
+        JSON.stringify({
+          authnResult: {
+            access_token: accessToken,
+            refresh_token: 'opaque-refresh-token-abcdefghijklmnopqrstuvwxyz0123456789',
+          },
+          authzData: accessToken,
+        })
+      );
+    })();
+
+    // Check 5: postMessage listener that never checks event.origin.
+    window.addEventListener('message', function (event) {
+      console.log('received message', event.data);
+      // Intentionally does not check event.origin before trusting event.data.
+    });
+
+    // Check 7: sensitive-looking window global with an opaque value.
+    window.myGlobalToken = 'gT0k3n-opaque-value-abcdefghijklmnopqrstuvwxyz012345';
+
+    // Sets a non-HttpOnly, non-Secure "session" cookie so the browser-side
+    // cookie-flag checks (background script, browser.cookies API) have a
+    // real one to flag. Won't be visible to Quimera's own header analysis
+    // since there's no Set-Cookie response header here, this is JS-set.
+    document.cookie = 'session_id=js-set-session-abc123; path=/';
+  </script>
+</body>
+</html>

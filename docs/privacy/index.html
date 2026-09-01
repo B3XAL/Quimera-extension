@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quimera, Privacy Policy</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #1c1c1c;
+    --muted: #55595f;
+    --border: #e2e4e8;
+    --accent: #7a3ff2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14141a;
+      --fg: #eceef2;
+      --muted: #a8adb6;
+      --border: #2b2c34;
+      --accent: #b28dfa;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.25rem 5rem;
+  }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+  h2 { font-size: 1.15rem; margin-top: 2.25rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+  p { margin: 0.9rem 0; }
+  ul { padding-left: 1.3rem; }
+  li { margin: 0.4rem 0; }
+  code { background: var(--border); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.9em; }
+  a { color: var(--accent); }
+  .back { display: inline-block; margin-bottom: 1.5rem; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="https://github.com/B3XAL/Quimera-extension">&larr; Quimera (browser extension) on GitHub</a>
+  <h1>Privacy policy</h1>
+  <p class="meta">Applies to the Quimera browser extension (Chrome, Edge, Opera, Firefox, Safari).</p>
+
+  <p>
+    Quimera accesses cookies and, only on sites the user explicitly authorizes, website content
+    needed to inspect authentication state: local/session storage and limited runtime
+    authentication signals. It uses this information solely to display, edit and analyze that
+    state for authorized security testing. Data stays on the user's device. There is no account,
+    telemetry, analytics, advertising, sale, profiling or transfer to the developer or third
+    parties.
+  </p>
+
+  <p>
+    The optional Burp bridge is off by default. If the user enables and pairs it, selected
+    snapshots are sent only to the Quimera Burp extension on <code>127.0.0.1</code>; they do not
+    leave the computer. If Target Scope synchronization is enabled, the extension polls the
+    authenticated local bridge for bounded host candidates observed in Burp scope. New hosts
+    remain pending until the user approves the browser permission prompt unless global website
+    access has been granted. With that optional permission, the extension collects on every
+    regular HTTP(S) page; Quimera Burp ignores received snapshots outside Burp Target Scope.
+    Removed synchronized hosts do not delete manual entries. Options and recent findings are
+    stored in browser extension storage. Users can clear them by removing extension data or
+    uninstalling the extension and can revoke site access in browser settings at any time.
+  </p>
+
+  <h2>Limited Use</h2>
+  <p>
+    Quimera's use of the data described above is limited to providing and improving the disclosed
+    security-testing functionality of the extension:
+  </p>
+  <ul>
+    <li>Data is not sold, rented or otherwise transferred to third parties.</li>
+    <li>Data is not used or transferred for advertising, including retargeting, personalized or
+      interest-based advertising.</li>
+    <li>Data is not used or transferred to determine creditworthiness or for lending purposes.</li>
+    <li>Data is not used to build a profile of the user beyond what the disclosed functionality
+      requires.</li>
+    <li>No human reads user data collected by the extension, except as necessary for security
+      purposes, to comply with applicable law, or with the user's affirmative consent.</li>
+  </ul>
+
+  <h2>Contact</h2>
+  <p>
+    Report privacy or security concerns through
+    <a href="https://github.com/B3XAL/Quimera-extension/security/advisories/new">GitHub's private
+    security advisory form</a> for this repository.
+  </p>
+
+  <h2>Source of truth</h2>
+  <p>
+    This page mirrors
+    <a href="https://github.com/B3XAL/Quimera-extension/blob/main/PRIVACY.md"><code>PRIVACY.md</code></a>
+    in the repository. If behavior changes, the code, <code>PRIVACY.md</code>, this page and every
+    store questionnaire are updated together before release. If this page and the repository file
+    ever differ, the repository file is authoritative.
+  </p>
+</main>
+</body>
+</html>
