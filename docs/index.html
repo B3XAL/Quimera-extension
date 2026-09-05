@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quimera, browser extension</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #1c1c1c;
+    --muted: #55595f;
+    --border: #e2e4e8;
+    --accent: #7a3ff2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14141a;
+      --fg: #eceef2;
+      --muted: #a8adb6;
+      --border: #2b2c34;
+      --accent: #b28dfa;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.25rem 5rem;
+  }
+  h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+  .meta { color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
+  h2 { font-size: 1.15rem; margin-top: 2.25rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+  p { margin: 0.9rem 0; }
+  ul { padding-left: 1.3rem; }
+  li { margin: 0.4rem 0; }
+  code { background: var(--border); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.9em; }
+  a { color: var(--accent); }
+  .links { display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; margin: 1.4rem 0; }
+  .links a { font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Quimera</h1>
+  <p class="meta">A cookie manager that also watches your own browser for the things a proxy can never see.</p>
+
+  <p>
+    Quimera is a full cookie manager first, and a small, real vulnerability engine running entirely
+    inside the page second. A proxy only ever sees what goes over the wire, it never sees a token a
+    single-page app quietly stashed in <code>localStorage</code> after the response was already
+    rendered, a cookie that claims <code>HttpOnly</code> but is actually readable from
+    <code>document.cookie</code>, or an auth token buried inside an unrelated-looking JSON blob.
+  </p>
+
+  <div class="links">
+    <a href="https://github.com/B3XAL/Quimera-extension">Source code on GitHub</a>
+    <a href="https://github.com/B3XAL/Quimera-extension/blob/main/README.md">Documentation</a>
+    <a href="privacy/">Privacy policy</a>
+  </div>
+
+  <h2>Companion Burp Suite extension</h2>
+  <p>
+    An optional loopback bridge pairs this extension with Quimera's Burp Suite extension from the
+    same GitHub organization, forwarding real runtime findings into Burp instead of leaving them
+    guessed from response bodies. The bridge is off by default, requires a pairing token, and is
+    scoped to Burp's Target Scope.
+  </p>
+  <div class="links">
+    <a href="https://github.com/B3XAL/Quimera">Quimera (Burp extension) on GitHub</a>
+  </div>
+
+  <h2>Origins and license</h2>
+  <p>
+    Started as a fork of <a href="https://cookie-editor.com/">Cookie-Editor</a>, still fully
+    GPL-3.0 and still crediting its original author. Chrome, Firefox, Edge, Opera and Safari are
+    all supported.
+  </p>
+</main>
+</body>
+</html>
