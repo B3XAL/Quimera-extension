@@ -17,167 +17,164 @@
 
 ---
 
-A proxy only ever sees what goes over the wire. It never sees the token a SPA quietly stashed in
-`localStorage` after the HTTP response was already rendered, the cookie that claims `HttpOnly` but
-is actually readable from `document.cookie` because someone set it wrong, or the OIDC token
-response an auth library buried three levels deep inside a JSON blob under one innocuous-looking
-key. Quimera is a full cookie manager first, and a small, real vulnerability engine running
-entirely inside the page second, so it catches what response-body analysis has to guess at.
+## The problem with proxies
 
-## Why it exists
+Burp, ZAP, mitmproxy, any of them, only ever see what crosses the wire. None of them see the token a
+single-page app quietly wrote to `localStorage` after the response was already rendered. None of them
+see a cookie that claims `HttpOnly` in one response but is actually readable from `document.cookie`
+because someone else set it without that flag somewhere else in the app. None of them see an OIDC
+token response an auth library buried three levels deep inside a JSON blob under one innocuous key.
 
-This started as a fork of [Cookie-Editor](https://cookie-editor.com/), still fully GPL-3.0 and
-still crediting its original author, because the cookie-jar engine underneath it (fast, clean,
-already handles every browser's quirks) didn't need reinventing. What Quimera adds on top is the
-part a cookie editor was never meant to do: read the page's actual runtime state, the way an
-attacker's own injected script would, and flag what's actually reachable instead of what merely
-looks suspicious in a name. A key called `authToken` sitting in Web Storage is an easy heuristic
-hit; a raw OIDC token response silently nested inside a completely unrelated-looking blob is the
-kind of thing that survives most reviews, and it doesn't survive Quimera's.
+Quimera is a full cookie manager first, so you never lose that daily tool, and a small vulnerability
+engine that runs inside the page itself second, so it catches exactly what response-body analysis has
+to guess at.
 
-## Features
+## Take a look around
 
-### Cookie management (inherited from Cookie-Editor)
-- Create, edit, delete cookies for the current tab, with full attribute control (Secure,
-  HttpOnly*, SameSite, Domain, Path, Expiration).
-- Import/export as JSON, header string, or Netscape cookie-file format.
-- Works from the popup, a dedicated side panel, or DevTools, whichever fits your workflow.
+<table>
+<tr>
+<td align="center"><img src="readme/screenshots/popup-cookies-tab.png" width="300" alt="Cookies tab"><br><sub>Cookies</sub></td>
+<td align="center"><img src="readme/screenshots/popup-storage-tab.png" width="300" alt="Storage tab"><br><sub>Storage</sub></td>
+<td align="center"><img src="readme/screenshots/popup-vulns-tab.png" width="300" alt="Vulns tab"><br><sub>Vulns</sub></td>
+</tr>
+</table>
 
-*(*Cookies actually set as `HttpOnly` can't be read or written by any extension, by browser design,
-this is a feature, not a Quimera limitation.)*
+Three tabs, one popup.
 
-### Storage tab
-Shows the real, live `localStorage`/`sessionStorage` contents of the page you're on, not a guess
-reconstructed from an HTTP response body. If it's in the page right now, you see it.
+**Cookies** is the part inherited from Cookie-Editor: create, edit, delete, full attribute control
+(Secure, HttpOnly*, SameSite, Domain, Path, Expiration), import and export as JSON, header string, or
+Netscape cookie-file format, from the popup, a side panel, or DevTools, whichever fits how you work.
 
-### Vulns tab
-A small client-side vulnerability engine, running entirely in the browser, no server needed, that
-flags things a proxy can never see:
-- Real secrets/JWTs sitting in Web Storage or in credential-shaped `window` globals.
-- Cookies that are actually readable by JavaScript despite the site claiming `HttpOnly` somewhere
-  else.
-- Storage values that are themselves a JSON blob get walked **recursively**, not just checked flat,
-  so a token buried inside one, `angular-auth-oidc-client`, `oidc-client-ts`, MSAL and similar OIDC
-  libraries store the *entire* token response (access/refresh/id token included) as one JSON string
-  under a single key, still gets found even though neither the key's name nor its raw value look
-  like a token on their own.
-- Severity accounts for where a value actually lives: `localStorage` (persistent, readable by any
-  future XSS at leisure) scores higher than `sessionStorage` (tab-scoped, gone once the tab
-  closes).
+*(Cookies actually marked `HttpOnly` can't be read or written by any extension. That's the browser
+protecting you, not a Quimera limitation.)*
 
-Deliberately scoped to headers/cookies/auth only, generic DOM-secret scanning, insecure-form
-scanning, and postMessage origin-check scanning were tried and removed, see `content/engine.js`'s
-own comments for what and why.
+**Storage** shows the real, live `localStorage` and `sessionStorage` of the page you're on right now,
+not a guess reconstructed from an HTTP response body. If it's in the page, you see it.
 
-### Bridge to Quimera Burp (optional)
-When the [Quimera Burp extension](https://github.com/B3XAL/Quimera) is running on the same
-machine, every page snapshot is also sent to it over a local loopback connection for deeper
-analysis (CSP, known auth-SDK signatures, tech fingerprinting). Deliberately one-way: whatever
-Quimera-burp's own analysis finds shows up in *its* Logger/Issues, not mirrored back into this
-extension's Vulns tab, which only ever shows what the extension itself detected. Off by default,
-requires explicit pairing: enable the bridge in Burp and copy its generated token into Options.
-Leave it disabled and the extension keeps working standalone.
+**Vulns** is where the engine runs. Entirely inside the browser, no server involved, flagging:
 
-Host access works differently per browser. On Chrome, Edge, Opera and Safari, `<all_urls>` is
-requested once at install (the browser shows this as its normal install-time permission warning),
-so the Storage/Vulns collector runs on every regular HTTP(S) page from then on with no further
-prompt. On Firefox, `<all_urls>` stays an optional permission: grant it once from **Options** or
-from the popup's bridge widget when pairing. On every browser, granting host access only starts
-local collection for the Storage/Vulns tab; sending anything to the Burp bridge is a separate,
-independently gated step (see below), and the bridge itself discards snapshots outside Burp Target
-Scope regardless. Optional Burp Target Scope synchronization imports observed in-scope hosts as
-pending Firefox permission candidates; it never grants browser access silently. Options also
-controls bridge pairing and individual collectors.
+- Real secrets and JWTs sitting in Web Storage or in credential-shaped `window` globals.
+- Cookies that are actually readable by JavaScript despite the site claiming `HttpOnly` somewhere else.
+- Storage values that are themselves a JSON blob get walked recursively, not just checked flat.
+  `angular-auth-oidc-client`, `oidc-client-ts`, MSAL and similar OIDC libraries store the entire token
+  response, access, refresh and id token included, as one JSON string under a single key. Neither the
+  key's name nor the raw value look like a token on their own. Quimera still finds it.
+- Severity that accounts for where a value actually lives: `localStorage` (permanent, readable by any
+  future XSS at leisure) scores higher than `sessionStorage` (gone the moment the tab closes).
 
-## Pairing with Quimera Burp, step by step
+Deliberately scoped to headers, cookies and auth. Generic DOM-secret scanning, insecure-form scanning
+and postMessage origin checks were all tried and pulled back out, see `content/engine.js`'s own
+comments for what and why.
 
-Both sides are off by default and require a few clicks to connect. Prerequisites: [Quimera for
-Burp Suite](https://github.com/B3XAL/Quimera) is loaded and running, and this extension is
-installed and its Options page is reachable.
+## Options, laid out plainly
 
-### 1. Generate a token in Burp
+<p align="center">
+<img src="readme/screenshots/options-cookie-settings.png" width="640" alt="Options page, cookie and interface settings">
+</p>
 
-1. Open the **Quimera** tab in Burp Suite's top tab bar.
-2. Inside it, open the **Settings** tab.
-3. Click the **Browser Bridge...** button. This opens the "Quimera - Browser Bridge" dialog.
-4. Check **Enable Browser Bridge**.
-5. Leave **Port** at its default, `8199`, unless that port is already used by something else on
-   your machine; the extension defaults to the same value.
-6. Under **Pairing token (required)**, click **Generate**, then **Copy** to put the token on your
-   clipboard.
-7. Click **Apply**. The status line above should switch to "● Running on 127.0.0.1:8199" (or
-   whatever port you chose). If it says "Failed to start", something else already has that port,
-   pick a different one on both sides.
+Everything that changes how Quimera behaves lives on one page: advanced cookie fields, the DevTools
+panel toggle, animations, export format, theme. Nothing hidden three menus deep.
 
-### 2. Paste the token into the extension
+<p align="center">
+<img src="readme/screenshots/options-bridge-and-privacy.png" width="640" alt="Options page, Quimera Bridge and website access settings">
+</p>
 
-1. Click the Quimera icon in your browser toolbar and open **Options** (or right-click the icon →
-   Options, or find it from `chrome://extensions`/`about:addons`).
-2. In the **Quimera Bridge** section, turn on **Enable Bridge to Quimera (Burp)**.
-3. Paste the token you copied from Burp into **Pairing Token**, right below it.
-4. Only if you changed the port in Burp, update **Bridge Port** here to match; otherwise leave it
-   at `8199`.
-5. Click **Check now** next to **Connection status**. It should read "Connected to Quimera". If it
-   doesn't, see Troubleshooting below before moving on.
+Further down is the part that matters most for privacy: exactly what a granted host collects (the
+page's URL, its cookies, its storage, whichever auth-shaped signals you've opted into) spelled out in
+plain language, right next to the switch that turns it on.
 
-### 3. Give it something to actually see
+## Bridge to Quimera for Burp (optional)
 
-Pairing alone doesn't collect anything yet, the extension still needs permission to read a given
-site, same as any browser extension:
-- Simplest: click **Allow access to all websites** once in Options.
-- More conservative: list specific hosts under **Authorized hosts**, one per line
-  (`example.com`, or `*example.com` to include every subdomain too).
-- Or turn on **Synchronize Burp Target Scope** and click **Sync and authorize new hosts**, which
-  offers hosts Quimera has already seen in Burp traffic and are currently in Target Scope as
-  candidates, no full `<all_urls>` grant required.
+When the [Quimera Burp extension](https://github.com/B3XAL/Quimera) is running on the same machine,
+every page snapshot can also be sent to it over a local loopback connection for deeper analysis: CSP,
+known auth-SDK signatures, tech fingerprinting. It only flows one way on purpose, whatever
+Quimera-burp's own analysis turns up shows up in *its* Logger and Issues, not mirrored back into this
+extension. The Vulns tab only ever shows what this extension itself detected.
 
-### 4. Confirm it's actually working
+Off by default. Pairing takes three steps: enable the bridge in Burp, copy the token it generates,
+paste it into Options here. Leave it disabled and the extension keeps working exactly as it did
+before, fully standalone.
 
-Browse to a page you've authorized. In Burp's **Quimera** tab, findings sourced from the browser
-(real `localStorage`/`sessionStorage`/cookie values, or auth-shaped `window` globals) start showing
-up the same way HTTP-driven findings do, marked as browser-sourced. If a page's host isn't in Burp
-Target Scope, the bridge silently discards what the browser sent for it, by design, not a bug.
+## Pairing, step by step
+
+Both sides start off. Getting them talking takes about a minute. One prerequisite: [Quimera for Burp
+Suite](https://github.com/B3XAL/Quimera) is loaded and running.
+
+<p align="center">
+<img src="readme/screenshots/pairing-step1-widget-disconnected.png" width="300" alt="Bridge widget before pairing, not connected">
+</p>
+
+**1. Open the bridge widget.** Click the Quimera icon, then the bridge toggle in the popup (Options
+has the same setting, either place works). Right now it has nowhere to connect to yet, that's
+expected.
+
+<p align="center">
+<img src="readme/screenshots/pairing-step2-burp-generate-token.png" width="420" alt="Burp's Browser Bridge dialog, token generated">
+</p>
+
+**2. Generate a token in Burp.** Open the **Quimera** tab in Burp, then **Settings**, then **Browser
+Bridge...**. Check **Enable Browser Bridge**, leave the port at its default `8199` unless something
+else on your machine already uses it, click **Generate**, then **Copy**. Click **Apply**, the status
+line should switch to "Running on 127.0.0.1:8199".
+
+<p align="center">
+<img src="readme/screenshots/pairing-step3-widget-connected.png" width="300" alt="Bridge widget after pairing, connected">
+</p>
+
+**3. Paste it back into the extension.** Same widget as step one, paste the token, save. "Connected
+and paired with Quimera" in green means it worked. If it doesn't, see Troubleshooting below.
+
+**4. Give it something to actually see.** Pairing alone doesn't collect anything yet, the extension
+still needs permission to read a given site, same as any browser extension. Simplest: **Allow access
+to all websites** in Options. More conservative: list specific hosts under **Authorized hosts**. Or
+turn on **Synchronize Burp Target Scope** and let it offer hosts Quimera has already seen in Burp
+traffic as candidates.
+
+**5. Confirm it landed.** Browse a page you've authorized. In Burp's **Quimera** tab, findings sourced
+from the browser (real storage or cookie values, auth-shaped `window` globals) start showing up
+marked as browser-sourced. If a page's host isn't in Burp's Target Scope, the bridge silently drops
+what the browser sent for it. By design, not a bug.
 
 ### Troubleshooting
 
 | Symptom | Likely cause |
 |---|---|
-| "Not connected (Quimera not running, or bridge disabled/blocked)" | Burp isn't running, the Browser Bridge dialog's "Enable Browser Bridge" is unchecked, or its status line says "Failed to start" (port already in use, e.g. two Burp instances). |
-| "Paste the pairing token shown by the Quimera Burp extension first" | The Pairing Token field is empty or under 32 characters. Go back to Burp's Browser Bridge dialog and click **Copy** again. |
-| Connected, but nothing ever shows up in Burp | Check step 3 (the extension needs host permission for that page) and confirm the page's host is actually in Burp's Target Scope. |
-| It worked, then stopped | The token was probably regenerated in Burp (rotating it invalidates the old one immediately). Copy the new one into Options again. |
-| Port fields don't agree | The **Port** value in Burp's dialog and **Bridge Port** in the extension's Options must be identical. |
+| "Not connected (Quimera not running, or bridge disabled/blocked)" | Burp isn't running, "Enable Browser Bridge" is unchecked, or its status line says "Failed to start" (port already in use, e.g. two Burp instances). |
+| "Paste the pairing token shown by the Quimera Burp extension first" | The Pairing Token field is empty or under 32 characters. Go back to Burp's dialog and click Copy again. |
+| Connected, but nothing shows up in Burp | Check step 4 (host permission) and confirm the page's host is actually in Burp's Target Scope. |
+| It worked, then stopped | The token was probably regenerated in Burp, rotating it invalidates the old one immediately. Copy the new one into Options. |
+| Port fields don't agree | The Port value in Burp's dialog and the Bridge Port in the extension's Options must be identical. |
 
 ## Installing (unpacked, for personal use)
 
 **Chrome / Edge / Brave / Opera:**
-1. Open `chrome://extensions` (or the equivalent `edge://extensions`, `opera://extensions`).
-2. Turn on "Developer mode" (top right).
+1. Open `chrome://extensions` (or `edge://extensions`, `opera://extensions`).
+2. Turn on Developer mode, top right.
 3. Click "Load unpacked" and select this folder.
-4. Copy the browser-specific manifest (`manifest.chrome.json`, `manifest.edge.json`, or
-   `manifest.opera.json`) to `manifest.json` first if the browser doesn't pick it up
-   automatically, some Chromium builds require the file to literally be named `manifest.json`.
+4. If the browser doesn't pick up the manifest automatically, copy the browser-specific one
+   (`manifest.chrome.json`, `manifest.edge.json`, `manifest.opera.json`) to `manifest.json` first,
+   some Chromium builds require that exact filename.
 
 **Firefox:**
 1. Open `about:debugging#/runtime/this-firefox`.
-2. Click "Load Temporary Add-on…" and select `manifest.firefox.json` (or a copy of it named
-   `manifest.json` in this folder).
-3. Temporary add-ons are removed when Firefox restarts; reload it from `about:debugging` again
-   after restarting, or package it properly for a permanent install.
+2. Click "Load Temporary Add-on..." and select `manifest.firefox.json` (or a copy named
+   `manifest.json`).
+3. Temporary add-ons disappear on restart, reload from `about:debugging` again, or package it
+   properly for a permanent install.
 
-**Safari:** the native wrapper app lives in `safari/Quimera/`, an Xcode project. Open it in Xcode,
-set your own Apple Developer Team under Signing & Capabilities (the shipped project has none
-configured), run `npm run build:safari`, and build the wrapper in Xcode.
+**Safari:** the native wrapper lives in `safari/Quimera/`, an Xcode project. Open it, set your own
+Apple Developer Team under Signing & Capabilities (none is configured by default), run
+`npm run build:safari`, then build the wrapper in Xcode.
 
-The manifests request host access optionally. Add only the exact authorized test hosts in Options;
-an empty list means no page capture. You can revoke access at any time in browser settings.
+Host access is opt-in everywhere. Add only the hosts you're actually testing in Options, an empty
+list means no page capture, and you can revoke access at any time from your browser's own settings.
 
 ## Testing the vulnerability engine
 
-Open `test/seed.html` (serve it, e.g. `python3 -m http.server` from `test/`, so it has a real HTTP
-origin) with the extension installed, then open the Vulns tab. It seeds one example of every check
-still in scope: a JWT with `alg:none`, a JWT with no `exp`, and an opaque token in Web Storage and
-in a window global.
+Open `test/seed.html` with the extension installed (serve it, `python3 -m http.server` from `test/`
+works fine, it needs a real HTTP origin), then open the Vulns tab. It seeds one example of every check
+still in scope: a JWT with `alg:none`, a JWT with no `exp`, an opaque token in Web Storage and in a
+window global.
 
 ## Building from source
 
@@ -206,14 +203,17 @@ interface/sidepanel/ the side-panel variant of the same UI
 safari/Quimera/     the native Safari wrapper app (Xcode project)
 ```
 
-## Credit
+## Where this came from
 
-Quimera is a fork of [Cookie-Editor](https://cookie-editor.com/) by Christophe Gagnier, published
-under [the GPL-3.0 license](https://github.com/Moustachauve/cookie-editor/blob/master/LICENSE).
-Cookie-Editor itself is a separate, independently published extension for creating/editing/
-deleting cookies, available on the Chrome Web Store, Firefox Add-ons, the App Store, Microsoft
-Store and Opera Add-ons, see its own site for those links, this fork isn't published on any of
-them.
+Quimera started as a fork of [Cookie-Editor](https://cookie-editor.com/), still fully GPL-3.0, still
+crediting its original author, because the cookie-jar engine underneath it (fast, already handles
+every browser's quirks) didn't need reinventing. What got added on top is the part a cookie editor was
+never meant to do: read the page's actual runtime state, the way an attacker's own injected script
+would, and flag what's actually reachable instead of what merely looks suspicious in a name.
+
+Cookie-Editor by Christophe Gagnier is a separate, independently published extension, available on the
+Chrome Web Store, Firefox Add-ons, the App Store, Microsoft Store and Opera Add-ons, see its own site
+for those links. This fork isn't published on any of them.
 
 ## Feature suggestions or bug reports
 
@@ -221,6 +221,6 @@ them.
 
 ## License
 
-GPL-3.0, see [`LICENSE`](LICENSE). Use it, fork it, modify it, just keep it open: any distributed
-fork or derivative must stay GPL-3.0, credit Cookie-Editor as the base it's built on, and make its
-source available.
+GPL-3.0, see [`LICENSE`](LICENSE). Use it, fork it, modify it, just keep it open: any distributed fork
+or derivative must stay GPL-3.0, credit Cookie-Editor as the base it's built on, and make its source
+available.
