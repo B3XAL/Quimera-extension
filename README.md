@@ -215,9 +215,11 @@ Cookie-Editor by Christophe Gagnier is a separate, independently published exten
 Chrome Web Store, Firefox Add-ons, the App Store, Microsoft Store and Opera Add-ons, see its own site
 for those links. This fork isn't published on any of them.
 
-## Feature suggestions or bug reports
+## Contributing
 
-[Find me on GitHub](https://github.com/B3XAL).
+Contributions and feature requests are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for build
+instructions and the project's hard requirements. If you're adding a detection check, `content/engine.js`'s
+own comments document the severity reasoning every check is expected to follow, read it first.
 
 ## License
 
