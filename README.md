@@ -9,9 +9,12 @@
 
 **A cookie manager that also watches your own browser for the things a proxy can never see.**
 
+[![Get it on the Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Install-4285F4?style=for-the-badge)](https://chromewebstore.google.com/detail/quimera/beinhcpfaoomkjdjhbfafgfoiloilmem)
+[![Get it on Firefox Add-ons](https://img.shields.io/badge/Firefox%20Add--ons-Install-FF7139?style=for-the-badge)](https://addons.mozilla.org/en-GB/firefox/addon/quimera/)
+
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-orange.svg)](manifest.chrome.json)
-[![Chrome · Firefox · Edge · Opera · Safari](https://img.shields.io/badge/Browsers-Chrome%20%C2%B7%20Firefox%20%C2%B7%20Edge%20%C2%B7%20Opera%20%C2%B7%20Safari-informational.svg)](#installing-unpacked-for-personal-use)
+[![Chrome · Firefox · Edge · Opera · Safari](https://img.shields.io/badge/Browsers-Chrome%20%C2%B7%20Firefox%20%C2%B7%20Edge%20%C2%B7%20Opera%20%C2%B7%20Safari-informational.svg)](#installing)
 
 </div>
 
@@ -145,9 +148,15 @@ what the browser sent for it. By design, not a bug.
 | It worked, then stopped | The token was probably regenerated in Burp, rotating it invalidates the old one immediately. Copy the new one into Options. |
 | Port fields don't agree | The Port value in Burp's dialog and the Bridge Port in the extension's Options must be identical. |
 
-## Installing (unpacked, for personal use)
+## Installing
 
-**Chrome / Edge / Brave / Opera:**
+Chrome and Firefox users: just grab it from the [Chrome Web
+Store](https://chromewebstore.google.com/detail/quimera/beinhcpfaoomkjdjhbfafgfoiloilmem) or
+[Firefox Add-ons](https://addons.mozilla.org/en-GB/firefox/addon/quimera/), that's the whole
+install. Everything below is for Edge, Opera, Brave and Safari, which don't have an official
+listing yet, or for loading the extension from source.
+
+**Chrome / Edge / Brave / Opera (unpacked):**
 1. Open `chrome://extensions` (or `edge://extensions`, `opera://extensions`).
 2. Turn on Developer mode, top right.
 3. Click "Load unpacked" and select this folder.
